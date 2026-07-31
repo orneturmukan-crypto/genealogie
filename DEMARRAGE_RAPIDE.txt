@@ -1,0 +1,119 @@
+🚀 GÉNÉALOGIE PWA - GUIDE DE DÉMARRAGE RAPIDE
+
+═══════════════════════════════════════════════════════════════
+
+👋 BIENVENUE ! 
+
+Ce ZIP contient TOUT ce qu'il faut pour lancer l'app généalogie sur 
+votre téléphone ! Aucune installation compliquée, promis ! 
+
+═══════════════════════════════════════════════════════════════
+
+✅ ÉTAPE 1 : Extraire le ZIP
+
+Windows  → Clic droit → Extraire tout
+Mac      → Double-clic sur le ZIP
+Linux    → unzip genealogie-complete.zip
+
+═══════════════════════════════════════════════════════════════
+
+✅ ÉTAPE 2 : Ouvrir un Terminal/Invite de Commande
+
+🪟 WINDOWS :
+  1. Cherchez "Invite de commandes" ou "PowerShell"
+  2. Tapez : cd C:\Chemin\Vers\genealogie-complete
+  
+🍎 MAC :
+  1. Cmd + Espace → "Terminal"
+  2. Tapez : cd ~/Downloads/genealogie-complete (ou où vous l'avez)
+
+🐧 LINUX :
+  1. Ouvrez Terminal
+  2. Tapez : cd ~/genealogie-complete
+
+═══════════════════════════════════════════════════════════════
+
+✅ ÉTAPE 3 : Installer les dépendances
+
+Tapez CETTE commande dans le terminal :
+
+  npm install
+
+Attendez... (peut prendre 2-5 minutes)
+
+═══════════════════════════════════════════════════════════════
+
+✅ ÉTAPE 4 : Lancer l'application
+
+Tapez :
+
+  npm run dev
+
+Vous verrez :
+
+  ➜ Local:   http://localhost:5173/
+
+═══════════════════════════════════════════════════════════════
+
+✅ ÉTAPE 5 : Ouvrir dans le navigateur
+
+🌐 Cliquez sur http://localhost:5173 
+   OU
+   Tapez l'URL manuellement dans votre navigateur
+
+BRAVO ! L'app tourne ! 🎉
+
+═══════════════════════════════════════════════════════════════
+
+📱 INSTALLER SUR VOTRE TÉLÉPHONE
+
+🍎 IPHONE :
+  1. Ouvrez Safari → allez à http://localhost:5173
+  2. Cliquez PARTAGE (flèche ↑)
+  3. "Sur l'écran d'accueil"
+  4. AJOUTER
+
+🤖 ANDROID :
+  1. Ouvrez Chrome → allez à l'URL
+  2. Cliquez ⋮ (trois points)
+  3. "Installer l'application"
+
+L'app apparaît sur votre écran d'accueil ! 📲
+
+═══════════════════════════════════════════════════════════════
+
+⚠️ AIDE
+
+Pas de terminal trouvé ?
+→ Lisez le fichier README.md pour les instructions détaillées
+
+L'app ne démarre pas ?
+→ Vérifiez que Node.js est installé :
+  Tapez : node -v
+  Vous devez voir un numéro (ex: v18.0.0)
+
+═══════════════════════════════════════════════════════════════
+
+💾 EXPORT DE VOS DONNÉES
+
+Dans l'app :
+1. Cliquez "EXPORTER"
+2. Téléchargez le fichier genealogie_YYYY-MM-DD.json
+3. GARDEZ CE FICHIER EN SÉCURITÉ ! (c'est votre sauvegarde)
+
+Pour réimporter :
+1. Cliquez "IMPORTER"
+2. Sélectionnez votre fichier
+
+═══════════════════════════════════════════════════════════════
+
+🎯 PRÊT ?
+
+  1. Terminal → cd genealogie-complete
+  2. npm install
+  3. npm run dev
+  4. Ouvrez http://localhost:5173
+
+C'est tout ! 🚀
+
+═══════════════════════════════════════════════════════════════
