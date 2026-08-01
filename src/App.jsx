@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Plus, Trash2, Edit2, Download, Upload } from 'lucide-react';
+import { ChevronDown, Plus, Trash2, Edit2, Download, Upload, X } from 'lucide-react';
 
 export default function GenealogyApp() {
   const [individuals, setIndividuals] = useState(() => {
@@ -13,6 +13,7 @@ export default function GenealogyApp() {
   const [filterGeneration, setFilterGeneration] = useState('all');
   const [viewMode, setViewMode] = useState('list');
   const [expandedNode, setExpandedNode] = useState(null);
+  const [photoModal, setPhotoModal] = useState(null);
 
   const [formData, setFormData] = useState({
     sosaNummer: '',
@@ -22,35 +23,65 @@ export default function GenealogyApp() {
     deces: '',
     lieuNaissance: '',
     lieuDeces: '',
+    mariageDate: '',
+    lieuMariage: '',
     notes: '',
     photo: '',
     blason: '',
     conjoint: '',
+    pays: 'France',
   });
 
   useEffect(() => {
     localStorage.setItem('genealogyData', JSON.stringify(individuals));
   }, [individuals]);
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  const getFlagEmoji = (country) => {
+    const flags = {
+      'France': '🇫🇷',
+      'Italie': '🇮🇹',
+      'Espagne': '🇪🇸',
+      'Allemagne': '🇩🇪',
+      'Suisse': '🇨🇭',
+      'Belgique': '🇧🇪',
+      'Royaume-Uni': '🇬🇧',
+      'États-Unis': '🇺🇸',
+      'Canada': '🇨🇦',
+      'Autre': '🌍',
+    };
+    return flags[country] || '🌍';
+  };
+
   const getGenerationFromSosa = (sosa) => {
     if (!sosa) return 0;
-    return Math.floor(Math.log2(sosa)) + 1;
+    const num = parseInt(sosa);
+    return Math.floor(Math.log2(num)) + 1;
   };
 
   const getParentSosa = (sosa) => {
-    if (!sosa || sosa === '1') return null;
-    return Math.floor(sosa / 2);
+    const num = parseInt(sosa);
+    if (!num || num === 1) return null;
+    return Math.floor(num / 2);
   };
 
   const getChildren = (sosa) => {
+    const sosaNumerator = parseInt(sosa);
     return individuals.filter(ind => {
-      const parentSosa = getParentSosa(ind.sosaNummer);
-      return parentSosa === sosa;
+      const indSosa = parseInt(ind.sosaNummer);
+      const parentSosa = getParentSosa(indSosa);
+      return parentSosa === sosaNumerator;
     });
   };
 
   const getIndividualBySosa = (sosa) => {
-    return individuals.find(ind => ind.sosaNummer === sosa);
+    const sosaNumerator = parseInt(sosa);
+    return individuals.find(ind => parseInt(ind.sosaNummer) === sosaNumerator);
   };
 
   const resetForm = () => {
@@ -62,10 +93,13 @@ export default function GenealogyApp() {
       deces: '',
       lieuNaissance: '',
       lieuDeces: '',
+      mariageDate: '',
+      lieuMariage: '',
       notes: '',
       photo: '',
       blason: '',
       conjoint: '',
+      pays: 'France',
     });
     setEditingId(null);
   };
@@ -77,12 +111,17 @@ export default function GenealogyApp() {
       return;
     }
 
+    const formDataToSave = {
+      ...formData,
+      sosaNummer: parseInt(formData.sosaNummer)
+    };
+
     if (editingId) {
       setIndividuals(
-        individuals.map(ind => (ind.id === editingId ? { ...formData, id: editingId } : ind))
+        individuals.map(ind => (ind.id === editingId ? { ...formDataToSave, id: editingId } : ind))
       );
     } else {
-      setIndividuals([...individuals, { ...formData, id: Date.now() }]);
+      setIndividuals([...individuals, { ...formDataToSave, id: Date.now() }]);
     }
 
     resetForm();
@@ -90,7 +129,10 @@ export default function GenealogyApp() {
   };
 
   const handleEdit = (individual) => {
-    setFormData(individual);
+    setFormData({
+      ...individual,
+      sosaNummer: individual.sosaNummer.toString()
+    });
     setEditingId(individual.id);
     setShowForm(true);
   };
@@ -164,7 +206,7 @@ export default function GenealogyApp() {
               {individual.sosaNummer} - {individual.prenom} {individual.nom.toUpperCase()}
             </div>
             <div className="text-xs text-amber-700">
-              {individual.naissance && `né(e) ${individual.naissance}`}
+              {individual.naissance && `Né le ${formatDate(individual.naissance)}`}
             </div>
           </div>
         </div>
@@ -180,7 +222,7 @@ export default function GenealogyApp() {
   };
 
   const ListView = () => (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {filteredIndividuals.length === 0 ? (
         <div className="text-center py-8 text-amber-700">
           Aucun résultat. {individuals.length === 0 && 'Commencez par ajouter une personne.'}
@@ -190,19 +232,59 @@ export default function GenealogyApp() {
           <div key={ind.id} className="p-4 bg-white border-l-4 border-amber-700 rounded hover:shadow-md transition">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <div className="font-bold text-amber-900">
+                <div className="font-bold text-amber-900 text-lg">
                   {ind.sosaNummer} - {ind.prenom} {ind.nom.toUpperCase()}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
                   Génération {getGenerationFromSosa(ind.sosaNummer)}
-                  {ind.naissance && ` • Né ${ind.naissance}`}
-                  {ind.deces && ` • † ${ind.deces}`}
+                  {ind.naissance && ` • Né le ${formatDate(ind.naissance)}`}
+                  {ind.deces && ` • Décédé le ${formatDate(ind.deces)}`}
                 </div>
-                {ind.lieuNaissance && <div className="text-xs text-gray-500">📍 {ind.lieuNaissance}</div>}
+                {ind.lieuNaissance && <div className="text-xs text-gray-500">📍 Né à {ind.lieuNaissance}</div>}
+                {ind.lieuDeces && <div className="text-xs text-gray-500">📍 Décédé à {ind.lieuDeces}</div>}
                 {ind.conjoint && <div className="text-xs text-amber-700">💑 Conjoint: {ind.conjoint}</div>}
+                {ind.mariageDate && (
+                  <div className="text-xs text-amber-700">
+                    💍 Marié le {formatDate(ind.mariageDate)}
+                    {ind.lieuMariage && ` à ${ind.lieuMariage}`}
+                  </div>
+                )}
                 {ind.notes && <div className="text-xs text-gray-600 mt-2 italic">{ind.notes}</div>}
               </div>
-              <div className="flex gap-2">
+
+              <div className="flex flex-col items-center gap-3 p-4 bg-amber-50 rounded border-2 border-amber-200 min-w-[120px]">
+                <div className="text-4xl">{getFlagEmoji(ind.pays || 'France')}</div>
+
+                {ind.blason ? (
+                  <img
+                    src={ind.blason}
+                    alt="Blason"
+                    className="w-16 h-16 object-cover rounded border border-amber-700 hover:scale-110 transition cursor-pointer"
+                    title="Cliquez pour agrandir"
+                    onClick={() => setPhotoModal({ src: ind.blason, title: 'Blason - ' + ind.prenom })}
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-200 rounded border border-amber-300 flex items-center justify-center text-xs text-gray-500">
+                    Pas de blason
+                  </div>
+                )}
+
+                {ind.photo ? (
+                  <img
+                    src={ind.photo}
+                    alt="Photo"
+                    className="w-16 h-16 object-cover rounded border-2 border-amber-700 hover:scale-110 transition cursor-pointer"
+                    title="Cliquez pour agrandir"
+                    onClick={() => setPhotoModal({ src: ind.photo, title: ind.prenom + ' ' + ind.nom })}
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-200 rounded border-2 border-amber-300 flex items-center justify-center text-xs text-gray-500">
+                    Pas de photo
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 flex-col">
                 <button
                   onClick={() => handleEdit(ind)}
                   className="p-2 text-amber-700 hover:bg-amber-100 rounded transition"
@@ -225,7 +307,7 @@ export default function GenealogyApp() {
 
   const TreeView = () => (
     <div className="p-4 bg-amber-50 rounded border border-amber-200 overflow-x-auto">
-      <TreeNode sosaNummer="1" />
+      <TreeNode sosaNummer={1} />
       {individuals.length === 0 && (
         <div className="text-center py-8 text-amber-700">
           Ajoutez une personne (numéro Sosa: 1) pour commencer l'arbre généalogique.
@@ -233,6 +315,31 @@ export default function GenealogyApp() {
       )}
     </div>
   );
+
+  const PhotoModal = () => {
+    if (!photoModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto relative">
+          <button
+            onClick={() => setPhotoModal(null)}
+            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded hover:bg-red-600 z-10"
+          >
+            <X size={24} />
+          </button>
+          <div className="p-6">
+            <h2 className="text-xl font-bold text-amber-900 mb-4">{photoModal.title}</h2>
+            <img
+              src={photoModal.src}
+              alt={photoModal.title}
+              className="w-full h-auto rounded border-2 border-amber-700"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const Stats = () => {
     const generations = new Set(individuals.map(ind => getGenerationFromSosa(ind.sosaNummer)));
@@ -361,7 +468,7 @@ export default function GenealogyApp() {
                     Numéro Sosa *
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     value={formData.sosaNummer}
                     onChange={(e) => setFormData({ ...formData, sosaNummer: e.target.value })}
                     placeholder="ex: 1, 2, 3..."
@@ -394,6 +501,28 @@ export default function GenealogyApp() {
                     onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
                     className="w-full px-3 py-2 border border-amber-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-700 text-sm"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-amber-900 mb-1">
+                    Pays
+                  </label>
+                  <select
+                    value={formData.pays}
+                    onChange={(e) => setFormData({ ...formData, pays: e.target.value })}
+                    className="w-full px-3 py-2 border border-amber-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-700 text-sm"
+                  >
+                    <option>France</option>
+                    <option>Italie</option>
+                    <option>Espagne</option>
+                    <option>Allemagne</option>
+                    <option>Suisse</option>
+                    <option>Belgique</option>
+                    <option>Royaume-Uni</option>
+                    <option>États-Unis</option>
+                    <option>Canada</option>
+                    <option>Autre</option>
+                  </select>
                 </div>
 
                 <div>
@@ -455,6 +584,30 @@ export default function GenealogyApp() {
                     className="w-full px-3 py-2 border border-amber-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-700 text-sm"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-amber-900 mb-1">
+                    Date de mariage
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.mariageDate}
+                    onChange={(e) => setFormData({ ...formData, mariageDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-amber-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-700 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-amber-900 mb-1">
+                    Lieu de mariage
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.lieuMariage}
+                    onChange={(e) => setFormData({ ...formData, lieuMariage: e.target.value })}
+                    className="w-full px-3 py-2 border border-amber-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-700 text-sm"
+                  />
+                </div>
               </div>
 
               <div>
@@ -485,7 +638,7 @@ export default function GenealogyApp() {
 
                 <div>
                   <label className="block text-sm font-medium text-amber-900 mb-1">
-                    URL Blason
+                    URL Blason 🛡️
                   </label>
                   <input
                     type="url"
@@ -524,7 +677,8 @@ export default function GenealogyApp() {
           </>
         )}
       </div>
+
+      <PhotoModal />
     </div>
   );
-
-}
+        }
