@@ -255,19 +255,18 @@ export default function GenealogyApp() {
                 {ind.notes && <div className="text-xs text-gray-600 mt-2 italic">{ind.notes}</div>}
               </div>
 
-              <div className="flex flex-col items-center gap-2">
-                <div className="text-3xl">{getFlagEmoji(ind.pays || 'France')}</div>
-
+              <div className="flex items-center gap-1">
                 {ind.blason && (
                   <img
                     src={ind.blason}
                     alt="Blason"
                     className="hover:scale-110 transition cursor-pointer"
-                    style={{ width: '60px', height: '66px', objectFit: 'cover' }}
+                    style={{ width: '40px', height: '44px', objectFit: 'cover' }}
                     title="Blason"
                     onClick={() => setPhotoModal({ src: ind.blason, title: 'Blason - ' + ind.prenom })}
                   />
                 )}
+                <div className="text-2xl">{getFlagEmoji(ind.pays || 'France')}</div>
               </div>
 
               <div className="flex gap-2 flex-col">
@@ -667,4 +666,4 @@ export default function GenealogyApp() {
       <PhotoModal />
     </div>
   );
-}
+                          }
