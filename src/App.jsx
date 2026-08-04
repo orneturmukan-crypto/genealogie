@@ -231,7 +231,10 @@ export default function GenealogyApp() {
         filteredIndividuals.map(ind => (
           <div key={ind.id} className="p-4 bg-white border-l-4 border-amber-700 rounded hover:shadow-md transition">
             <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
+              <div 
+                className="flex-1 cursor-pointer hover:opacity-80 transition"
+                onClick={() => ind.photo && setPhotoModal({ src: ind.photo, title: ind.prenom + ' ' + ind.nom })}
+              >
                 <div className="font-bold text-amber-900 text-lg">
                   {ind.sosaNummer} - {ind.prenom} {ind.nom.toUpperCase()}
                 </div>
@@ -252,35 +255,18 @@ export default function GenealogyApp() {
                 {ind.notes && <div className="text-xs text-gray-600 mt-2 italic">{ind.notes}</div>}
               </div>
 
-              <div className="flex flex-col items-center gap-3 p-4 bg-amber-50 rounded border-2 border-amber-200 min-w-[120px]">
-                <div className="text-4xl">{getFlagEmoji(ind.pays || 'France')}</div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-3xl">{getFlagEmoji(ind.pays || 'France')}</div>
 
-                {ind.blason ? (
+                {ind.blason && (
                   <img
                     src={ind.blason}
                     alt="Blason"
-                    className="w-16 h-16 object-cover rounded border border-amber-700 hover:scale-110 transition cursor-pointer"
-                    title="Cliquez pour agrandir"
+                    className="hover:scale-110 transition cursor-pointer"
+                    style={{ width: '60px', height: '66px', objectFit: 'cover' }}
+                    title="Blason"
                     onClick={() => setPhotoModal({ src: ind.blason, title: 'Blason - ' + ind.prenom })}
                   />
-                ) : (
-                  <div className="w-16 h-16 bg-gray-200 rounded border border-amber-300 flex items-center justify-center text-xs text-gray-500">
-                    Pas de blason
-                  </div>
-                )}
-
-                {ind.photo ? (
-                  <img
-                    src={ind.photo}
-                    alt="Photo"
-                    className="w-16 h-16 object-cover rounded border-2 border-amber-700 hover:scale-110 transition cursor-pointer"
-                    title="Cliquez pour agrandir"
-                    onClick={() => setPhotoModal({ src: ind.photo, title: ind.prenom + ' ' + ind.nom })}
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-gray-200 rounded border-2 border-amber-300 flex items-center justify-center text-xs text-gray-500">
-                    Pas de photo
-                  </div>
                 )}
               </div>
 
@@ -681,4 +667,4 @@ export default function GenealogyApp() {
       <PhotoModal />
     </div>
   );
-        }
+}
